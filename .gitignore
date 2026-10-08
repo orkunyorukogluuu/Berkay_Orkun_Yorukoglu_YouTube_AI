@@ -34,3 +34,7 @@ genius_url_cache.json
 # Local debugging scripts
 check_*.py
 patch_mojibake.py
+
+# Test output files
+test_*.txt
+test_output/
