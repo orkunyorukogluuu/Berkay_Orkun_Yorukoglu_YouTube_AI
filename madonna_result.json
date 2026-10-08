@@ -1,0 +1,72 @@
+{
+  "artist": "Madonna",
+  "album_name": "Madonna",
+  "songs": [
+    {
+      "name": "Lucky Star",
+      "lyrics_length_chars": 2306,
+      "lyrics_length_words": 410,
+      "lyrics_length_tokens": 618,
+      "tokens_per_word": 1.5073170731707317,
+      "lyrics_hash": "3a78a48b7258905f36512afe522b5d9a"
+    },
+    {
+      "name": "Borderline",
+      "lyrics_length_chars": 1968,
+      "lyrics_length_words": 378,
+      "lyrics_length_tokens": 587,
+      "tokens_per_word": 1.552910052910053,
+      "lyrics_hash": "b8397246f2d4c6016c5835bb8582bb1d"
+    },
+    {
+      "name": "Burning Up",
+      "lyrics_length_chars": 1953,
+      "lyrics_length_words": 390,
+      "lyrics_length_tokens": 633,
+      "tokens_per_word": 1.623076923076923,
+      "lyrics_hash": "599bb4b1028137c73a33b7a0e2064ab0"
+    },
+    {
+      "name": "I Know It",
+      "lyrics_length_chars": 1691,
+      "lyrics_length_words": 345,
+      "lyrics_length_tokens": 458,
+      "tokens_per_word": 1.327536231884058,
+      "lyrics_hash": "05ff3b2e487580e5500ac763f572150f"
+    },
+    {
+      "name": "Holiday",
+      "lyrics_length_chars": 2114,
+      "lyrics_length_words": 370,
+      "lyrics_length_tokens": 567,
+      "tokens_per_word": 1.5324324324324323,
+      "lyrics_hash": "b628252c3b1fe1ac67a00a5bc9c86eb5"
+    },
+    {
+      "name": "Think of Me",
+      "lyrics_length_chars": 2102,
+      "lyrics_length_words": 417,
+      "lyrics_length_tokens": 613,
+      "tokens_per_word": 1.4700239808153477,
+      "lyrics_hash": "8afc88272cac03711b82dd88f703e716"
+    },
+    {
+      "name": "Physical Attraction",
+      "lyrics_length_chars": 2193,
+      "lyrics_length_words": 385,
+      "lyrics_length_tokens": 549,
+      "tokens_per_word": 1.425974025974026,
+      "lyrics_hash": "d545dd6eabd17aa2f11fc96acdd592bf"
+    },
+    {
+      "name": "Everybody",
+      "lyrics_length_chars": 3277,
+      "lyrics_length_words": 627,
+      "lyrics_length_tokens": 888,
+      "tokens_per_word": 1.4162679425837321,
+      "lyrics_hash": "690784e1328b57ba9ad01d0dbe451964"
+    }
+  ],
+  "total_tokens_all_songs": 4913,
+  "avg_tokens_per_song": 614.125
+}

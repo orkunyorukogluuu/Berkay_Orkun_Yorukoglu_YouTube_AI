@@ -24,3 +24,13 @@ models/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Generated data and temporary files
+*_checkpoint.json
+lyrics_output/
+genius_url_cache.json
+*.log
+
+# Local debugging scripts
+check_*.py
+patch_mojibake.py

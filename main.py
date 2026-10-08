@@ -1,9 +1,11 @@
 
+
 import argparse
 import json
 import os
 import sys
 from contextlib import redirect_stdout
+from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
@@ -91,7 +93,6 @@ Return ONLY valid JSON:
     response.raise_for_status()
 
     content = response.json()["choices"][0]["message"]["content"]
-
     album = json.loads(content)
 
     if not isinstance(album.get("songs"), list) or not album["songs"]:
@@ -112,11 +113,21 @@ def main():
         help="Output format",
     )
 
+    parser.add_argument(
+        "--checkpoint",
+        default="album_checkpoint.json",
+        help="Checkpoint JSON file",
+    )
+
+    parser.add_argument(
+        "--lyrics-dir",
+        default="lyrics_output",
+        help="Directory for lyrics files",
+    )
+
     args = parser.parse_args()
 
     try:
-        # Some imported functions may print progress to stdout.
-        # Redirect those messages to stderr.
         with redirect_stdout(sys.stderr):
             artist = get_artist_from_youtube(args.youtube_url)
             album = get_first_album(artist)
@@ -125,6 +136,9 @@ def main():
                 artist=album.get("artist") or artist,
                 album_name=album["album_name"],
                 tracks=album["songs"],
+                checkpoint_file=args.checkpoint,
+                lyrics_dir=args.lyrics_dir,
+                show_lyrics=True,
             )
 
             if args.mode == "hash":
@@ -136,7 +150,6 @@ def main():
                     indent=2,
                 )
 
-        # Only the requested result goes to stdout.
         print(output)
 
     except Exception as error:
