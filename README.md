@@ -166,7 +166,6 @@ These observations are **not a claim that every artist, clean installation or ex
 - **Resuming:** Checkpoints and cached lyrics help avoid repeating successfully processed tracks, but do not guarantee recovery from every corrupted state.
 - **Text fidelity:** Cleaning and Unicode repair can change the source text, which affects hashes and token counts.
 - **Output contract:** The present modular CLI and its extra diagnostic fields differ from a strict single-file/minimal-JSON assessment interpretation.
-- **Model reproducibility:** The first hash run downloads the embedding model; model/runtime versions may affect the hash.
 - **Cost:** Apify and OpenRouter requests may incur charges.
 
 ## Security
@@ -175,4 +174,4 @@ Only the `APIFY_API_KEY` and `OPENROUTER_API_KEY` environment variables are requ
 
 ## Acknowledgement
 
-Thank you to the **AIMultiple team** for the opportunity to work on this assessment. The project offered practical experience in integrating language models, scraping tools, tokenization, caching and embedding-based workflows.
+Thank you to the **AIMultiple team** and Cem Dilmegani for the opportunity to work on this assessment. The project offered practical experience in integrating language models, scraping tools, tokenization, caching and embedding-based workflows.
