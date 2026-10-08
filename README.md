@@ -1,240 +1,112 @@
 # YouTube AI Scraping Agent
 
-**An AI-powered music analysis pipeline built with Python, Apify, OpenRouter GPT-5.2, and Nomic AI.**
+**Python CLI | Apify | OpenRouter GPT-5.2 | Genius | tiktoken | Nomic Embed Text v1.5**
 
-## About This Project
+A modular command-line application that takes a YouTube music-video URL, identifies the artist, determines the artist's debut studio album and original track order, retrieves lyrics through Apify, and returns either album-level JSON metrics or an embedding-based MD5 hash.
 
-This project was developed as part of the technical assessment process for **AI Multiple**.
+Built for the **AIMultiple technical assessment**.
 
-The objective was to build an end-to-end AI-powered application that takes a YouTube music video URL, identifies the artist and their debut studio album, retrieves the album's lyrics, and performs text analysis to generate structured JSON data or an embedding-based MD5 hash.
+## What it does
 
-Beyond fulfilling the technical requirements, I approached this project as an opportunity to explore how different AI models, web scraping tools, and data processing techniques can work together in a practical application.
+1. **Identify the artist:** call Apify's `streamers/youtube-scraper` and read video channel metadata.
+2. **Find the debut album:** ask `openai/gpt-5.2` through OpenRouter for the first officially released studio album and its original track listing, excluding deluxe and bonus tracks.
+3. **Locate and scrape lyrics:** find relevant Genius URLs and retrieve page content using Apify actors.
+4. **Process lyrics:** normalize formatting and common encoding artifacts; compute character, word and `cl100k_base` token counts, tokens per word and lyrics MD5.
+5. **Return a result:** output JSON in `json` mode, or embed the ordered token counts with `nomic-ai/nomic-embed-text-v1.5` and MD5-hash the formatted embedding in `hash` mode.
 
-I would also like to sincerely thank the **AI Multiple team** for giving me this opportunity. Working on this challenge has been both an enjoyable and valuable learning experience. It has allowed me to strengthen my understanding of AI integrations, automation workflows, and Python development while tackling real engineering challenges.
+The pipeline also supports **local lyrics caching, per-track checkpoints and resume behavior** to reduce unnecessary repeated requests after interruptions.
 
-I genuinely appreciate the time and consideration invested in reviewing my work, and I am grateful for the opportunity to demonstrate my skills.
-
----
-
-## Project Overview
-
-The YouTube AI Scraping Agent is a Python command-line application that automates the analysis of an artist's first officially released studio album.
-
-Given a YouTube music video URL, the application:
-
-1. Extracts video metadata using Apify.
-2. Identifies the artist and queries GPT-5.2 to determine their debut studio album.
-3. Retrieves the album's original track listing in release order.
-4. Finds and extracts lyrics from Genius using Apify.
-5. Calculates text statistics and cryptographic hashes for each track.
-6. Produces either structured JSON or an embedding-based MD5 hash.
-
-The application is designed with a modular architecture, separating scraping, AI inference, text processing, and output generation.
-
-## Technology Stack
-
-| Technology | Purpose |
-|---|---|
-| Python 3.10 | Core application and CLI |
-| Apify | YouTube metadata extraction and Genius scraping |
-| OpenRouter | Access to OpenAI GPT-5.2 |
-| GPT-5.2 | Debut album identification and track listing |
-| Genius | Lyrics source |
-| Tiktoken | Token counting using `cl100k_base` |
-| Nomic Embed Text v1.5 | Local text embedding generation |
-| Sentence Transformers | Loading and running the embedding model |
-| Hashlib | MD5 hash generation |
-| Python dotenv | Environment variable management |
-
-## Architecture
-
-The application follows this processing pipeline:
-
-```text
-YouTube Music Video URL
-          |
-          v
-Apify YouTube Scraper
-          |
-          v
-Artist Identification
-          |
-          v
-OpenRouter GPT-5.2
-          |
-          v
-Debut Studio Album + Track Listing
-          |
-          v
-Apify + Genius
-          |
-          v
-Lyrics Extraction and Caching
-          |
-          v
-Lyrics Cleaning and Text Analysis
-          |
-          +----------------------+
-          |                      |
-          v                      v
-      JSON Mode              Hash Mode
-          |                      |
-          v                      v
-  Structured Metrics       Token Counts
-                                 |
-                                 v
-                        Nomic Embedding
-                         (768 dimensions)
-                                 |
-                                 v
-                           MD5 Hash
-```
-
-## Features
-
-**YouTube metadata extraction**
-
-Uses the Apify `streamers/youtube-scraper` actor to retrieve information about a YouTube video and identify its channel.
-
-**AI-powered album identification**
-
-Uses `openai/gpt-5.2` through OpenRouter to identify the artist's first officially released studio album and determine its original track order, excluding bonus tracks and deluxe editions.
-
-**Automated lyrics retrieval**
-
-Locates Genius lyrics pages using Apify-powered search and retrieves lyrics through an Apify web scraper.
-
-**Lyrics analysis**
-
-Calculates the following metrics for each song:
-
-- Character count
-- Word count
-- Token count using `cl100k_base`
-- Tokens-per-word ratio
-- MD5 hash of the processed lyrics
-
-**Embedding-based hash generation**
-
-Combines song token counts in album order, generates a 768-dimensional embedding using `nomic-ai/nomic-embed-text-v1.5`, formats the embedding values to ten decimal places, and calculates a final MD5 hash.
-
-**Local caching**
-
-Stores successfully retrieved lyrics locally to reduce repeated scraping requests, improve development efficiency, and avoid unnecessary API usage.
-
-## Project Structure
+## Repository layout
 
 ```text
 YouTube_AI_Agent/
-|
-|-- main.py
-|-- album_processor.py
-|-- genius_finder.py
-|-- genius_scraper.py
-|-- lyrics_processor.py
-|-- hash_generator.py
-|
-|-- requirements.txt
-|-- README.md
-|-- .env.example
-|-- .gitignore
-|
-|-- test_*.py
-|
-|-- .env                 # Local only
-|-- .venv/               # Local only
-|-- lyrics_cache/        # Local only
+├── main.py                  # CLI entry point and orchestration
+├── album_processor.py       # Track processing, caching, checkpoints
+├── genius_finder.py         # Genius URL discovery and title variants
+├── genius_scraper.py        # Apify-based lyrics extraction
+├── lyrics_processor.py      # Cleaning, tokenization and metrics
+├── hash_generator.py        # Nomic embedding and MD5
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── .env.example             # Example configuration, if present
+├── madonna_result.json      # Example album result
+└── britney_result.json      # Example album result
 ```
 
-### Main Components
+This is intentionally a **multi-module Python project**. The executable entry point is `main.py`; the supporting `.py` modules must remain alongside it. Development tests were used locally but are **not part of the current repository submission**. Generated lyrics, checkpoints and local caches are not required to be committed.
 
-| File | Responsibility |
-|---|---|
-| `main.py` | Command-line interface and pipeline orchestration |
-| `album_processor.py` | Track processing, caching, and album-level statistics |
-| `genius_finder.py` | Finding relevant Genius lyrics URLs |
-| `genius_scraper.py` | Extracting lyrics from Genius pages |
-| `lyrics_processor.py` | Lyrics cleaning, tokenization, and metrics |
-| `hash_generator.py` | Nomic embeddings and final hash calculation |
+## Requirements
 
-## Installation
+- Python **3.10** (development environment)
+- An **Apify API key** and an **OpenRouter API key**
+- Internet access for YouTube metadata, model inference and Genius scraping
+- Sufficient disk space and time for the Nomic model download on first hash run
 
-### Prerequisites
-
-- Python 3.10
-- Git
-- Internet connection
-- Apify API key
-- OpenRouter API key
-
-### 1. Clone the repository
+## Setup
 
 ```bash
-git clone <YOUR_PRIVATE_REPOSITORY_URL>
+git clone https://github.com/orkunyorukogluuu/YouTube_AI_Agent.git
 cd YouTube_AI_Agent
-```
-
-Replace the placeholder URL with the actual GitHub repository URL.
-
-### 2. Create a virtual environment
-
-```bash
 python -m venv .venv
 ```
 
-Activate it on Windows PowerShell:
+Install dependencies without activating the environment if Windows PowerShell blocks `Activate.ps1`:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-On macOS or Linux:
+On macOS/Linux:
 
 ```bash
 source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
-python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The Nomic embedding model will be downloaded automatically on first use. This may take additional time depending on the internet connection.
-
-### 4. Configure API credentials
-
-Create a `.env` file in the project root using `.env.example` as a template:
+Create a `.env` file in the project root:
 
 ```dotenv
 APIFY_API_KEY=your_apify_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
-API credentials are intentionally excluded from the repository and will be provided separately to authorized reviewers.
+**Never commit `.env` or API credentials**, including to a private repository.
 
 ## Usage
 
-The application supports two output modes: `json` and `hash`.
+### JSON mode
 
-### JSON Mode
-
-Run:
-
-```bash
-python main.py "https://www.youtube.com/watch?v=rSaC-YbSDpo" json
+```powershell
+.\.venv\Scripts\python.exe main.py "https://www.youtube.com/watch?v=ThHz9wlBeLU" json
 ```
 
-This mode returns a JSON object containing:
+### Hash mode
 
-- Artist name
-- Debut studio album name
-- Song-level lyrics metrics
-- Total token count across the album
-- Average token count per song
+```powershell
+.\.venv\Scripts\python.exe main.py "https://www.youtube.com/watch?v=ThHz9wlBeLU" hash
+```
 
-Example response structure:
+On systems with the environment activated, replace `.\.venv\Scripts\python.exe` with `python`.
+
+### Optional flags
+
+```text
+--checkpoint PATH    Checkpoint file (default: album_checkpoint.json)
+--lyrics-dir PATH    Output directory for retrieved lyrics (default: lyrics_output)
+```
+
+For example:
+
+```powershell
+.\.venv\Scripts\python.exe main.py "https://www.youtube.com/watch?v=ThHz9wlBeLU" json --checkpoint madonna_checkpoint.json
+```
+
+Processing messages and errors are directed to **stderr**, while the final JSON/hash is printed to **stdout**.
+
+## Output
+
+A representative JSON result contains the following metrics:
 
 ```json
 {
@@ -255,137 +127,52 @@ Example response structure:
 }
 ```
 
-The example above is abbreviated for readability. The actual result includes all tracks returned for the album.
+*Illustrative, abbreviated example: the album-wide totals refer to all eight Madonna tracks, not only the one shown above.*
 
-### Hash Mode
+**Implementation note:** The current `lyrics_processor.py` also produces internal diagnostic fields (`tokenizer`, `token_ids`, `token_roundtrip_valid`), so the actual JSON may contain additional song fields beyond the assessment's minimal schema. The `lyrics_hash` is currently calculated from **cleaned lyrics**, rather than the raw text; this differs from a strict raw-lyrics MD5 requirement. These are known specification differences, not claimed as resolved.
 
-Run:
+### Hash algorithm
 
-```bash
-python main.py "https://www.youtube.com/watch?v=rSaC-YbSDpo" hash
-```
-
-The application:
-
-1. Processes the album in its original track order.
-2. Extracts each song's token count.
-3. Joins the counts into a comma-separated string.
-4. Generates a 768-dimensional Nomic embedding.
-5. Formats each embedding value to ten decimal places.
-6. Concatenates the formatted values using commas.
-7. Computes the MD5 hash of the resulting UTF-8 string.
-
-Example token sequence:
+For the eight-track Madonna example, the ordered token counts were:
 
 ```text
 618,587,633,458,567,613,549,888
 ```
 
-Verified hash from the local Madonna test:
+The application encodes that comma-separated string with `nomic-ai/nomic-embed-text-v1.5` (768 dimensions), formats each embedding value to ten decimal places, joins them with commas, and calculates the UTF-8 MD5.
+
+A hash recorded in local validation was:
 
 ```text
 2e5a2b9787d9516816da5c74162ad8f4
 ```
 
-## Testing and Validation
+Embedding outputs can be sensitive to model and dependency versions, so the above value is a recorded run, not a cross-environment guarantee.
 
-The application has been tested end-to-end using a Madonna music video.
+## Validation performed during development
 
-The test successfully completed the following stages:
+- **Madonna:** debut album *Madonna* (1983), 8 tracks, **4,913 tokens** and **614.125 average tokens per track** in the saved result. Both JSON and hash workflows were exercised during development.
+- **Britney Spears:** debut album *...Baby One More Time*, 11 tracks and **6,249 tokens** in the recorded development run; example result is included.
+- Mocked pipeline and regression tests were run during development; those development test scripts were deliberately excluded from the final GitHub repository.
 
-| Test | Result |
-|---|---|
-| YouTube metadata extraction | Passed |
-| Artist identification | Passed |
-| GPT-5.2 album identification | Passed |
-| Original track listing retrieval | Passed |
-| Lyrics processing for eight tracks | Passed |
-| Token calculations | Passed |
-| JSON output generation | Passed |
-| Nomic embedding generation | Passed |
-| Final MD5 hash generation | Passed |
-| Repeated execution using cached lyrics | Passed |
+These observations are **not a claim that every artist, clean installation or external API condition has been verified**.
 
-### Validated Album
+## Reliability and limitations
 
-**Artist:** Madonna
+- **Artist identity:** YouTube's channel name can differ from the performing artist.
+- **Album accuracy:** GPT-5.2's discography and track-order output may need verification for ambiguous releases.
+- **Genius availability:** External scraping can encounter HTTP 403 responses, missing lyrics or page changes.
+- **Title variants:** Featuring credits and alternative track naming can complicate Genius URL matching; the finder tries normalized variants.
+- **Resuming:** Checkpoints and cached lyrics help avoid repeating successfully processed tracks, but do not guarantee recovery from every corrupted state.
+- **Text fidelity:** Cleaning and Unicode repair can change the source text, which affects hashes and token counts.
+- **Output contract:** The present modular CLI and its extra diagnostic fields differ from a strict single-file/minimal-JSON assessment interpretation.
+- **Model reproducibility:** The first hash run downloads the embedding model; model/runtime versions may affect the hash.
+- **Cost:** Apify and OpenRouter requests may incur charges.
 
-**Album:** Madonna (debut studio album)
+## Security
 
-**Tracks processed:** 8
+Only the `APIFY_API_KEY` and `OPENROUTER_API_KEY` environment variables are required for the integrations described above. `.env`, virtual environments, caches and generated working data should remain outside version control. Share reviewer access to the private repository and distribute credentials only through an approved secure channel.
 
-**Total tokens:** 4,913
+## Acknowledgement
 
-**Average tokens per song:** 614.125
-
-Both JSON and hash modes were executed successfully through the CLI.
-
-These results demonstrate a working end-to-end implementation for the tested example. Broader testing across additional artists, operating systems, and clean Python environments remains an area for further validation.
-
-## Design Decisions
-
-### Modular Architecture
-
-The project separates individual responsibilities into dedicated Python modules to make the implementation easier to understand, test, maintain, and extend.
-
-### GPT-5.2 for Album Identification
-
-Rather than relying on manually maintained album data, the application uses GPT-5.2 to identify the debut album and its original track listing dynamically.
-
-### Local Embedding Generation
-
-The Nomic embedding model runs locally, avoiding the need for an additional paid embedding API.
-
-### Caching Strategy
-
-Lyrics are cached after successful retrieval, reducing repeated requests during development and testing.
-
-### Structured CLI Output
-
-The application separates processing diagnostics from its final result, making JSON and hash outputs suitable for command-line workflows.
-
-## Known Limitations
-
-- YouTube channel names do not always match the actual performing artist.
-- GPT-5.2 responses may require additional validation for unusual discographies or alternate album editions.
-- Genius lyrics URLs may vary from expected naming conventions.
-- Lyrics availability depends on external websites and Apify actors.
-- The first embedding run requires a model download.
-- API requests may incur usage costs.
-- Results for additional artists and fresh installations have not yet been fully validated.
-
-## Security and API Credentials
-
-API keys are loaded through environment variables using `python-dotenv`.
-
-The `.env` file is excluded from version control through `.gitignore`.
-
-For security reasons, API keys should never be committed to GitHub, even in private repositories. Credentials for evaluation can be shared separately through a secure channel.
-
-## Future Improvements
-
-Potential improvements include:
-
-- More robust artist identification using additional video metadata
-- Stronger validation of AI-generated album information
-- Improved Genius URL matching and fallback strategies
-- Automated tests with mocked API responses
-- Broader cross-platform testing
-- More comprehensive exception handling
-- Optional local caching of YouTube and album metadata
-
----
-
-## Acknowledgements
-
-I would like to express my appreciation to the **AI Multiple team** for the opportunity to work on this technical assessment.
-
-This project gave me the chance to connect several technologies into a complete workflow, overcome real implementation challenges, and learn through hands-on experimentation.
-
-Thank you for considering my application and taking the time to review my work. Regardless of the outcome, I genuinely value the experience and the opportunity to grow through this challenge.
-
-**Thank you, AI Multiple!**
-
----
-
-*Developed as part of the AI Multiple technical assessment.*
+Thank you to the **AIMultiple team** for the opportunity to work on this assessment. The project offered practical experience in integrating language models, scraping tools, tokenization, caching and embedding-based workflows.
