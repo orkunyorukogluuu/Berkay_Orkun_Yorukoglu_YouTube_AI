@@ -172,6 +172,3 @@ These observations are **not a claim that every artist, clean installation or ex
 
 Only the `APIFY_API_KEY` and `OPENROUTER_API_KEY` environment variables are required for the integrations described above. `.env`, virtual environments, caches and generated working data should remain outside version control. Share reviewer access to the private repository and distribute credentials only through an approved secure channel.
 
-## Acknowledgement
-
-Thank you to the **AIMultiple team** and Cem Dilmegani for the opportunity to work on this assessment. The project offered practical experience in integrating language models, scraping tools, tokenization, caching and embedding-based workflows.
