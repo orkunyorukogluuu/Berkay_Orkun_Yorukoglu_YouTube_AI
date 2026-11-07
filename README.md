@@ -4,7 +4,6 @@
 
 A modular command-line application that takes a YouTube music-video URL, identifies the artist, determines the artist's debut studio album and original track order, retrieves lyrics through Apify, and returns either album-level JSON metrics or an embedding-based MD5 hash.
 
-Built for the **AIMultiple technical assessment**.
 
 ## What it does
 
